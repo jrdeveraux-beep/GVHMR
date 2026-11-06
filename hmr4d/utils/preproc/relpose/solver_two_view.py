@@ -102,9 +102,16 @@ class PycolmapRansacTwoViewGeometrySolver:
         )
 
         # cam2_from_cam1 means T_0_to_1 in our language
-        Rt = answer.cam2_from_cam1.matrix().astype(np.float32)  # shape (3, 4)
+        # Robustness patch (Windows/pycolmap 4.x): estimate can return None, or a
+        # TwoViewGeometry with cam2_from_cam1=None for degenerate pairs
+        # (config=WATERMARK/PLANAR/PANORAMIC, e.g. static logo regions, pure
+        # rotation, or near-zero parallax). Treat those as "no measured camera
+        # motion" -> identity delta, which keeps cam_angvel ~0 for the segment.
+        pose = None if answer is None else answer.cam2_from_cam1
         T = np.eye(4)
-        T[:3] = Rt
+        if pose is not None:
+            Rt = pose.matrix().astype(np.float32)  # shape (3, 4)
+            T[:3] = Rt
         return T
 
 

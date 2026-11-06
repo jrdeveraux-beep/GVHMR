@@ -1,7 +1,6 @@
 # PyTorch
---extra-index-url https://download.pytorch.org/whl/cu121
-torch==2.3.0+cu121
-torchvision==0.18.0+cu121
+# NOTE(Windows/py3.11): torch 2.3.0+cu121 pins removed — installed separately:
+#   torch==2.11.0+cu128 / torchvision==0.26.0+cu128 from https://download.pytorch.org/whl/cu128
 timm==0.9.12  # For HMR2.0a feature extraction
 
 # Lightning + Hydra
@@ -12,7 +11,7 @@ hydra_colorlog
 rich
 
 # Common utilities
-numpy==1.23.5
+numpy  # unpinned from 1.23.5: torch 2.11/torchvision 0.26 + pycolmap wheels require numpy 2.x
 jupyter
 matplotlib
 ipdb
@@ -33,15 +32,19 @@ joblib
 # transformers==4.31.0
 
 # 3D-Vision
-pytorch3d @ https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/py310_cu121_pyt230/pytorch3d-0.7.6-cp310-cp310-linux_x86_64.whl
+# NOTE(Windows): linux pytorch3d wheel replaced with community win_amd64 cu128 build:
+#   https://github.com/MiroPsota/torch_packages_builder/releases (pytorch3d-0.7.9 pt2.11.0cu128 cp311)
 trimesh
-chumpy
 smplx
+# chumpy IS required: SMPL_*.pkl files contain pickled chumpy.Ch objects (make_smplx("smpl")).
+# Install manually — the normal path fails (setup.py uses pip.req, removed in modern pip):
+#   pip install chumpy --no-build-isolation
+# then patch site-packages/chumpy for py3.11+numpy2 (see NOTES_WINDOWS.md)
+# chumpy
 # open3d==0.17.0
 wis3d
 pycolmap
 
 # 2D-Pose
-ultralytics==8.2.42  # YOLO
-cython_bbox
-lapx
+ultralytics  # unpinned from 8.2.42: newer releases handle torch>=2.6 weights_only torch.load default
+# cython_bbox / lapx removed: not imported anywhere in hmr4d/ or tools/ (ultralytics vendors its own lap)

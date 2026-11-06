@@ -29,13 +29,11 @@ def get_batch(input_path, bbx_xys, img_ds=0.5, img_dst_size=256, path_type="vide
     if True:
         gt_bbx_size_ds = gt_bbx_size * img_ds
         ds_factors = ((gt_bbx_size_ds * 1.0) / img_dst_size / 2.0).numpy()
-        imgs = np.stack(
-            [
-                # gaussian(v, sigma=(d - 1) / 2, channel_axis=2, preserve_range=True) if d > 1.1 else v
-                cv2.GaussianBlur(v, (5, 5), (d - 1) / 2) if d > 1.1 else v
-                for v, d in zip(imgs, ds_factors)
-            ]
-        )
+        imgs = [
+            # gaussian(v, sigma=(d - 1) / 2, channel_axis=2, preserve_range=True) if d > 1.1 else v
+            cv2.GaussianBlur(v, (5, 5), (d - 1) / 2) if d > 1.1 else v
+            for v, d in zip(imgs, ds_factors)
+        ]
 
     # Output
     imgs_list = []
